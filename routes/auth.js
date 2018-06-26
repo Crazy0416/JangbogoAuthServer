@@ -85,7 +85,7 @@ router.get('/logout', logout);
 
 /* GET auth test */
 function listing(req, res, next) {
-    res.send('respond with a resource');
+    res.send('jenkins test');
 }
 
 /* POST 로그인 passport local 전략 사용 */
