@@ -161,13 +161,13 @@ function join(req, res, next) {
 
 /* GET Random nickname request */
 function nickname(req, res, next) {
-    redisClient.get(req.session.uid, function(data) {
-        let randNickname = getRandNickname(data.useNickname);
-        req.session.useNickname = data.useNickname.append(randNickname);
+    //redisClient.get(req.session.uid, function(data) {
+        let randNickname = getRandNickname([]);
+        //req.session.useNickname = data.useNickname.append(randNickname);
 
         // TODO: 3번 이상 요청했다면 못하게 오류 처리 해야함
         res.send(randNickname);
-    });
+    //});
 }
 
 function getRandNickname(prevNick) {

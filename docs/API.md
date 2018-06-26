@@ -68,19 +68,12 @@
 
 ### Response
 
-- 헤더:
-
-- 바디:
-
-  | 키      | 설명                        | 타입    | 비고                    |
-  | ------- | --------------------------- | ------- | ----------------------- |
-  | success | 성공 여부                   | Boolean | true                    |
-  | msg     | 서버에서 전달할 메세지 내용 | String  | "Member Create Success" |
-  | time    | 요청받은 시간               | Date    |                         |
+- 성공시 redirect: /
+- 실패시 redirect: /auth/login
 
 
 
-## 아이디 인증
+## 아이디 인증(아직 미구현)
 
 ### [GET] /auth/id/:id
 
@@ -108,7 +101,7 @@
 
 
 
-## 랜덤한 닉네임 요청
+## 랜덤한 닉네임 요청(아직 미구현)
 
 ### [GET] /auth/nickname?id=\<id\>
 
@@ -121,7 +114,6 @@
 ### Request
 
 - 헤더:
-  - content-type: application/json
 - 바디:
 
 ### Response
@@ -139,3 +131,19 @@
 
 
 
+## 로그아웃
+
+### GET /auth/logout
+
+- 장보고 서비스 로그아웃
+
+
+
+### Request
+
+- 헤더:
+- 바디:
+
+### Response
+
+- redirect: /
