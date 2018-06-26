@@ -1,4 +1,4 @@
-function isLogin(req, res, next) {
+module.exports = function isLogin(req, res, next) {
     if (req.session.uid) {
         res.json({
             "msg": "Already login!"
@@ -6,4 +6,4 @@ function isLogin(req, res, next) {
     } else {
         next();
     }
-}
+};
