@@ -9,6 +9,9 @@ const memberSchema = require('../models/member');
 const redisClient = require('../modules/redisHandler');
 const nicknameArray = require("../config/nickname");
 
+// middlewares
+const isLogin = require('../middlewares/isLogin');
+
 // crypto
 const crypto = require('crypto');
 
@@ -59,10 +62,10 @@ passport.use(new LocalStrategy({
 router.get('/', listing);
 
 /* POST 회원가입 */
-router.post('/join', join);
+router.post('/join', isLogin, join);
 
 /* POST 로그인 passport local 전략 사용 */
-router.post('/login', localLogin);
+router.post('/login', isLogin, localLogin);
 
 /* GET 로그인 페이지 렌더링 */
 router.get('/login', getLogin);
@@ -212,11 +215,16 @@ function getLogin(req, res, next) {
 }
 
 function logout(req, res, next) {
+    let time = new Date();
+
     if (req.session) {
         // delete session object
         req.session.destroy(function(err) {
             if(err) {
-                return next(err);
+                console.log(time + " GET /auth/logout ERROR: ", err);
+                return res.json({
+                    "msg": err
+                });
             } else {
                 return res.redirect('/');
             }
