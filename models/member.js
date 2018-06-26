@@ -1,7 +1,7 @@
 const mongoClient = require('mongoose');
 
 const memberSchema = new mongoClient.Schema({
-    id: {
+    uid: {
         type: String,
         required: true,
         unique: true
@@ -31,6 +31,10 @@ const memberSchema = new mongoClient.Schema({
        type: [String]       // TODO: tag 타입을 만들 것인가??
     },
     admin: Boolean,
+    salt: {
+        type: String,
+        required: true
+    },
     createOn: Date
 });
 
