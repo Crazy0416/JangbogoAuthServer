@@ -2,7 +2,7 @@
 
 const myEnv = require("../config/environment");
 
-// jenkins test1
+// jenkins test
 const express = require('express');
 const router = express.Router();
 const memberSchema = require('../models/member');
