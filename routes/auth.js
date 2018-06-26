@@ -1,4 +1,7 @@
 'use strict';
+
+const myEnv = require("../config/environment");
+
 // jenkins test1
 const express = require('express');
 const router = express.Router();
@@ -59,11 +62,7 @@ router.get('/', listing);
 router.post('/join', join);
 
 /* POST 로그인 passport local 전략 사용 */
-router.post('/login', passport.authenticate('local', {
-    successRedirect:'/',
-    failureRedirect: '/auth/login',
-    session: true
-}));
+router.post('/login', localLogin);
 
 /* GET 로그인 페이지 렌더링 */
 router.get('/login', getLogin);
@@ -71,14 +70,40 @@ router.get('/login', getLogin);
 /* GET Random nickname request */
 router.get('/nickname', nickname);
 
+// GET /logout
+router.get('/logout', logout);
+
+
+
+
+
+// Router handler
+
+
 /* GET auth test */
 function listing(req, res, next) {
     res.send('respond with a resource');
 }
 
+/* POST 로그인 passport local 전략 사용 */
+function localLogin(req, res, next) {
+    passport.authenticate('local', {
+        session: true
+    }, function(err, user, info) {      // memberSchema의 user
+        if(err) { return next(err); }
+        if(!user) { return res.redirect('/auth/login') }
 
+        req.session.uid = user.uid;
+        req.session.nickname = user.nickname;
 
-// Router handler
+        res.cookie('token', req.session.id, {
+            path:'/',
+            secure: false,
+            httpOnly: true,
+            maxAge: req.session.cookie.maxAge
+        }).redirect('/');
+    })(req, res, next);
+}
 
 /* POST 회원가입 */
 // TODO: 중간에 변경될 여지가 있을텐데 오류 처리 할 것인가??
@@ -116,6 +141,11 @@ function join(req, res, next) {
             })
         } else {
             console.log(registerTime + " POST /auth/join Create: member " + member);
+
+            req.session.uid = member.uid;
+            req.session.nickname = member.nickname;
+
+
             res.json({
                 "success": true,
                 "msg": "Member Create Success",
@@ -125,10 +155,6 @@ function join(req, res, next) {
         }
     })
 }
-
-
-// middleware
-
 
 /* GET Random nickname request */
 function nickname(req, res, next) {
@@ -181,8 +207,20 @@ function saltHashPassword(userpassword) {
     // console.log('nSalt = '+passwordData.salt);
 }
 
-
 function getLogin(req, res, next) {
     res.render('login');
+}
+
+function logout(req, res, next) {
+    if (req.session) {
+        // delete session object
+        req.session.destroy(function(err) {
+            if(err) {
+                return next(err);
+            } else {
+                return res.redirect('/');
+            }
+        });
+    }
 }
 module.exports = router;

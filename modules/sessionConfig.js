@@ -11,13 +11,13 @@ exports = module.exports = session({
     secret: myEnv.SESSION_SECRET,
     name: 'token',
     cookie: {
-        secure: true,
+        secure: false,
         httpOnly: true,
-        maxAge: 360000
+        maxAge: 60000
     },
     store: new redisStore({
         client: redisClient,
-        ttl: 360000
+        ttl: 60000
     }),
     saveUninitialized: true,
     resave: false
