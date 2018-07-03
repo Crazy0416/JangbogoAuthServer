@@ -1,7 +1,9 @@
 module.exports = function isLogin(req, res, next) {
     if (req.session.uid) {
         res.json({
-            "msg": "Already login!"
+            "success" : false,
+            "msg": "Already login!",
+            "time": Date.now()
         })
     } else {
         next();
