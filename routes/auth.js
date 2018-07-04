@@ -67,10 +67,13 @@ router.post('/join', isLogin, join);
 /* POST 로그인 passport local 전략 사용 */
 router.post('/login', isLogin, localLogin);
 
+/* GET 아이디 존재 유무 확인 요청 */
+router.get('/check/uid/:uid', isLogin, checkId);
+
 /* GET 로그인 페이지 렌더링 */
 router.get('/login', getLogin);
 
-/* GET Random nickname request */
+/* GET 랜덤 닉네임 요청 */
 router.get('/nickname', nickname);
 
 // GET /logout
@@ -231,4 +234,50 @@ function logout(req, res, next) {
         });
     }
 }
+
+function checkId(req, res, next) {
+    let uid = req.params.uid;
+
+    checkNoId(uid)
+        .then(function(json) {
+            // success: there's no id in db
+            res.json(json);
+        }, function (errJson) {
+            // false: there's id in db or db error
+            res.status(errJson.code)
+                .json(errJson);
+        })
+}
+
+function checkNoId(uid) {
+
+    return new Promise(function(resolve, reject) {
+        memberSchema.findOne({uid: uid}, (err, user) => {
+            if(err) {
+                console.log(time + " checkNoId ERROR: Member check id ERR => " + err);
+                reject({
+                    "success": false,
+                    "status": 503,
+                    "msg": "Member Check uid ERR",
+                    "time": registerTime
+                })
+            }
+            if(user) {
+                reject.json({
+                    "success": false,
+                    "status": 204,
+                    "msg": "동일한 아이디가 이미 존재합니다.",
+                    "time": registerTime
+                })
+            } else {
+                resolve.json({
+                    "success": true,
+                    "msg": "아이디 생성이 가능합니다.",
+                    "time": registerTime
+                })
+            }
+        })
+    });
+}
+
 module.exports = router;
