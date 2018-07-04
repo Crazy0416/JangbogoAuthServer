@@ -30,7 +30,10 @@
 
 ### Response
 
-- 헤더
+- 헤더:
+
+  - content-type: application/json
+  - charset: utf-8
 
 - 바디:
 
@@ -73,9 +76,9 @@
 
 
 
-## 아이디 인증(아직 미구현)
+## 아이디 인증
 
-### [GET] /auth/id/:id
+### [GET] /auth/check/uid/:uid
 
 - 장보고 서버에 이미 아이디가 존재하는 지 인증한다. 아이디가 이미 존재하면 만들 수 없도록 프론트에서 설정해야한다.
 
@@ -84,18 +87,20 @@
 ### Request
 
 - 헤더:
-  - content-type: application/json
 - 바디:
 
 ### Response
 
 - 헤더:
 
+  - content-type: application/json
+  - charset: utf-8
+
 - 바디:
 
   | 키      | 설명                        | 타입    | 비고                       |
   | ------- | --------------------------- | ------- | -------------------------- |
-  | success | 성공 여부                   | Boolean | true                       |
+  | success | 성공 여부                   | Boolean | true or false              |
   | msg     | 서버에서 전달할 메세지 내용 | String  | "The member already exist" |
   | time    | 요청받은 시간               | Date    |                            |
 
@@ -119,6 +124,9 @@
 ### Response
 
 - 헤더:
+
+  - content-type: application/json
+  - charset: utf-8
 
 - 바디:
 
