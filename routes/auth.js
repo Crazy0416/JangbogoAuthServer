@@ -244,7 +244,7 @@ function checkId(req, res, next) {
             res.json(json);
         }, function (errJson) {
             // false: there's id in db or db error
-            res.status(errJson.code)
+            res.status(errJson.status)
                 .json(errJson);
         })
 }
@@ -252,6 +252,8 @@ function checkId(req, res, next) {
 function checkNoId(uid) {
 
     return new Promise(function(resolve, reject) {
+        let registerTime = Date.now();
+
         memberSchema.findOne({uid: uid}, (err, user) => {
             if(err) {
                 console.log(time + " checkNoId ERROR: Member check id ERR => " + err);
@@ -261,16 +263,15 @@ function checkNoId(uid) {
                     "msg": "Member Check uid ERR",
                     "time": registerTime
                 })
-            }
-            if(user) {
-                reject.json({
+            }else if(user) {
+                reject({
                     "success": false,
-                    "status": 204,
+                    "status": 400,
                     "msg": "동일한 아이디가 이미 존재합니다.",
                     "time": registerTime
                 })
             } else {
-                resolve.json({
+                resolve({
                     "success": true,
                     "msg": "아이디 생성이 가능합니다.",
                     "time": registerTime
