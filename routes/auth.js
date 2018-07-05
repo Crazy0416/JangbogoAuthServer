@@ -6,6 +6,7 @@ const myEnv = require("../config/environment");
 const express = require('express');
 const router = express.Router();
 const memberSchema = require('../models/member');
+const tagSchema = require('../models/tag');
 const redisClient = require('../modules/redisHandler');
 const nicknameArray = require("../config/nickname");
 
@@ -68,7 +69,7 @@ router.post('/join', isLogin, join);
 router.post('/login', isLogin, localLogin);
 
 /* GET 아이디 존재 유무 확인 요청 */
-router.get('/check/uid/:uid', isLogin, checkId);
+router.get('/check/uid/:uid', isLogin, checkIdinDB);
 
 /* GET 로그인 페이지 렌더링 */
 router.get('/login', getLogin);
@@ -151,7 +152,6 @@ function join(req, res, next) {
             req.session.uid = member.uid;
             req.session.nickname = member.nickname;
 
-
             res.json({
                 "success": true,
                 "msg": "Member Create Success",
@@ -161,6 +161,29 @@ function join(req, res, next) {
         }
     })
 }
+
+/* TODO: tag 스키마가 필요하면 주석 해제
+function updateTagScheamByTagArr(shoppingType, cb) {
+    let tagPromiseArr = [];
+    for(let i = 0; i < shoppingType.length; i++) {
+        let tagPromise = new Promise(function(resolve, reject) {
+            tagSchema.findTag(shoppingType[i], (err, tag) => {
+                if(err) reject([shoppingType[i], err]);
+                else {
+                    if (tag) {
+
+                    } else {
+
+                    }
+                }
+            })
+        });
+
+        tagPromiseArr.append(tagPromise);
+    }
+}
+*/
+
 
 /* GET Random nickname request */
 function nickname(req, res, next) {
@@ -235,10 +258,10 @@ function logout(req, res, next) {
     }
 }
 
-function checkId(req, res, next) {
+function checkIdinDB(req, res, next) {
     let uid = req.params.uid;
 
-    checkNoId(uid)
+    isNoId(uid)
         .then(function(json) {
             // success: there's no id in db
             res.json(json);
@@ -249,7 +272,7 @@ function checkId(req, res, next) {
         })
 }
 
-function checkNoId(uid) {
+function isNoId(uid) {
 
     return new Promise(function(resolve, reject) {
         let registerTime = Date.now();
