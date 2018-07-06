@@ -186,7 +186,7 @@ function updateOrCreateAddressByUid(address, memberObj, cb) {
             if(addressObj) {   // 주소 존재 => update
                 let addressUpdatePromise = addressSchema.updateOne(
                     {address:address},
-                    {$push: {memberArr: memberObj._id}});
+                    {$push: {members: memberObj._id}});
 
                 addressUpdatePromise.exec()
                     .then(function(updateAddressObj) {
@@ -203,7 +203,7 @@ function updateOrCreateAddressByUid(address, memberObj, cb) {
             } else {        // 주소 없음 => create
                 addressSchema.create({
                     address: address,
-                    memberArr: [memberObj._id]
+                    members: [memberObj._id]
                 })
                 .then(function(createAddressObj) {
                     if(process.env.NODE_ENV == "production")
