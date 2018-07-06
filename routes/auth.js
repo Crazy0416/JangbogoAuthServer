@@ -7,6 +7,7 @@ const express = require('express');
 const router = express.Router();
 const memberSchema = require('../models/member');
 const tagSchema = require('../models/tag');
+const addressSchema = require('../models/address');
 const redisClient = require('../modules/redisHandler');
 const nicknameArray = require("../config/nickname");
 
@@ -152,14 +153,75 @@ function join(req, res, next) {
             req.session.uid = member.uid;
             req.session.nickname = member.nickname;
 
-            res.json({
-                "success": true,
-                "msg": "Member Create Success",
-                "data": member,
-                "time": registerTime
-            })
+            updateOrCreateAddressByUid(address, member, (err, data) => {
+                if(err) {
+                    res.status(500).json({
+                        "success": false,
+                        "msg": "Member Create ERR: " + err.toString(),
+                        "data": member,
+                        "time": registerTime
+                    })
+                } else {
+                    member.password = undefined;
+                    member.salt = undefined;
+                    member._id = undefined;
+
+                    res.json({
+                        "success": true,
+                        "msg": "Member Create Success",
+                        "data": member,
+                        "time": registerTime
+                    })
+                }
+            });
         }
     })
+}
+
+function updateOrCreateAddressByUid(address, memberObj, cb) {
+    let addressFindPromise = addressSchema.findOne({"address":address});
+
+    addressFindPromise.exec()       // 주소가 존재하는 지 먼저 확인
+        .then(function(addressObj) {
+            if(addressObj) {   // 주소 존재 => update
+                let addressUpdatePromise = addressSchema.updateOne(
+                    {address:address},
+                    {$push: {memberArr: memberObj._id}});
+
+                addressUpdatePromise.exec()
+                    .then(function(updateAddressObj) {
+                        if(process.env.NODE_ENV == "production")
+                            console.log(Date.now(), " Mongoose: address updateOne ", address);
+                        else if(process.env.NODE_ENV == "dev")
+                            console.log(Date.now(), " Mongoose: address updateOne ", address, " ", updateAddressObj);
+                        cb(null, "Address update: " + address);
+                    })
+                    .catch(function(errAU) {
+                        console.log(Date.now(), " Mongoose: address updateOne Error: ", errAU);
+                        cb(errAU);
+                    })
+            } else {        // 주소 없음 => create
+                addressSchema.create({
+                    address: address,
+                    memberArr: [memberObj._id]
+                })
+                .then(function(createAddressObj) {
+                    if(process.env.NODE_ENV == "production")
+                        console.log(Date.now(), " Mongoose: address create ", address);
+                    else if(process.env.NODE_ENV == "dev")
+                        console.log(Date.now(), " Mongoose: address create ", address, " ", createAddressObj);
+                    cb(null, "Address create: " + address);
+                })
+                .catch(function(errAC) {
+                    console.log(Date.now(), " Mongoose: address create Error: ", errAC);
+                    cb(errAC);
+                })
+            }
+        })
+        .catch(function(errAF) {
+            console.log(Date.now(), " Mongoose: address findOne Error: ", errAF);
+            cb(errAF);
+        })
 }
 
 /* TODO: tag 스키마가 필요하면 주석 해제
