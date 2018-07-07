@@ -98,18 +98,30 @@ function localLogin(req, res, next) {
     passport.authenticate('local', {
         session: true
     }, function(err, user, info) {      // memberSchema의 user
-        if(err) { return next(err); }
-        if(!user) { return res.redirect('/auth/login') }
+        if(err) {
+            return res.json({
+                "success": false,
+                "msg": err,
+                "time": Date.now()
+            });
+        }
+        if(!user) {
+            return res.json({
+                "success": false,
+                "msg": info.message,
+                "time": Date.now()
+            });
+        }else {
+            req.session.uid = user.uid;
+            req.session.nickname = user.nickname;
 
-        req.session.uid = user.uid;
-        req.session.nickname = user.nickname;
-
-        res.cookie('token', req.session.id, {
-            path:'/',
-            secure: false,
-            httpOnly: true,
-            maxAge: req.session.cookie.maxAge
-        }).redirect('/');
+            res.json({
+                "success": true,
+                "msg": "login success",
+                "token": "sess:" + req.session.id,
+                "time": Date.now()
+            });
+        }
     })(req, res, next);
 }
 
@@ -168,6 +180,7 @@ function join(req, res, next) {
 
                     res.json({
                         "success": true,
+                        "token": "sess:" + req.session.id,
                         "msg": "Member Create Success",
                         "data": member,
                         "time": registerTime
