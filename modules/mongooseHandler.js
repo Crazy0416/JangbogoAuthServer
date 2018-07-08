@@ -2,7 +2,11 @@ const myEnv = require('../config/environment');
 
 // mongoose setup
 const mongoClient = require('mongoose');
+const autoIncrement = require('mongoose-auto-increment');
 const mongoConnectionPoolSize = 10;
+
+// autoIncrement setting
+autoIncrement.initialize(mongoClient.connection);
 
 // query option
 /*
