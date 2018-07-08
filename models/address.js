@@ -7,7 +7,7 @@ const addressSchema = new mongoClient.Schema({
         required: true,
         unique: true
     },
-    members: [{
+    memberIds: [{
         type: mongoClient.Schema.ObjectId,
         ref: 'member'
     }]
