@@ -9,8 +9,12 @@ const cors = require('cors');
 // sesssion
 const session = require('./modules/sessionConfig');
 
+// middleware
+const tokenHeaderToCookie = require("./middlewares/tokenHeaderToCookie");
+
 // Router setting
 const authRouter = require('./routes/auth');
+const roomRouter = require('./routes/room');
 
 // mongoDB setup
 const mongoHandler = require('./modules/mongooseHandler');
@@ -21,6 +25,9 @@ const app = express();
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
+
+// header "token" to cookie
+app.use(tokenHeaderToCookie);
 
 // session config
 app.use(session);
@@ -39,6 +46,7 @@ app.use(passport.session());
 
 // Router Setting
 app.use('/auth', authRouter);
+app.use('/room', roomRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
