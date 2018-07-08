@@ -115,7 +115,7 @@ function localLogin(req, res, next) {
             req.session.uid = user.uid;
             req.session.nickname = user.nickname;
 
-            res.json({
+            res.clearCookie("token").json({
                 "success": true,
                 "msg": "login success",
                 "token": "sess:" + req.session.id,
@@ -178,7 +178,7 @@ function join(req, res, next) {
                     member.salt = undefined;
                     member._id = undefined;
 
-                    res.json({
+                    res.clearCookie("token").json({
                         "success": true,
                         "token": "sess:" + req.session.id,
                         "msg": "Member Create Success",
