@@ -14,6 +14,6 @@ exports = module.exports = session({
         client: redisClient,
         ttl: 60000
     }),
-    saveUninitialized: true,
+    saveUninitialized: false,
     resave: false
 });
