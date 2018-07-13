@@ -120,11 +120,21 @@ function createRoom(req, res, next) {
 function getUserRoomInfo(req, res, next) {
     let time = Date.now();
 
-    memberSchema.find({uid: req.session.uid})
-        .populate({
+    // TODO: 채팅이 제일 최근에 온 것으로 sorting
+
+    memberSchema.findOne({uid: req.session.uid})
+        .populate([{
             path: 'roomIds',
             model: 'room'
-        })
+        }, {
+            path: 'roomIds',
+            model: 'room',
+            populate: {
+                path: 'memberIds',
+                model: 'member'
+            }
+        }])
+        .lean()
         .exec((err, member) => {
             if(err) {
                 console.log(time + " GET /:uid/room ERROR: Member Find ERR => " + err);
@@ -142,11 +152,28 @@ function getUserRoomInfo(req, res, next) {
                         "time": time
                     })
                 } else {
+                    console.log(member);
+                    for(let i = 0; i < member.roomIds.length; i++) {
+                        for(let j = 0; j < member.roomIds[i].memberIds.length; j++) {
+                            member.roomIds[i].memberIds[j]._id = undefined;
+                            member.roomIds[i].memberIds[j].shoppingType = undefined;
+                            member.roomIds[i].memberIds[j].roomIds = undefined;
+                            member.roomIds[i].memberIds[j].password = undefined;
+                            member.roomIds[i].memberIds[j].address = undefined;
+                            member.roomIds[i].memberIds[j].admin = undefined;
+                            member.roomIds[i].memberIds[j].salt = undefined;
+                            member.roomIds[i].memberIds[j].createOn = undefined;
+                            member.roomIds[i].memberIds[j].__v = undefined;
+                            member.roomIds[i].memberIds[j].age = undefined;
+                            member.roomIds[i].memberIds[j].gender = undefined;
+                        }
+                    }
+
                     res.json({
                         "success": true,
                         "msg": "Success find user Room list info",
                         "time": time,
-                        "data" : member.roomId
+                        "data" : member.roomIds
                     });
                 }
             }
@@ -161,6 +188,7 @@ function getRoomInfo(req, res, next) {
             path: 'memberIds',
             model: 'member'
         })
+        .lean()
         .exec((err, room) => {
             if(err) {
                 console.log(time + " GET /:uid/room/:room_id ERROR: Room Find ERR => " + err);
@@ -185,6 +213,11 @@ function getRoomInfo(req, res, next) {
                         room.memberIds[i].salt = undefined;
                         room.memberIds[i].admin = undefined;
                         room.memberIds[i].createOn = undefined;
+                        room.memberIds[i]._id = undefined;
+                        room.memberIds[i].gender = undefined;
+                        room.memberIds[i].age = undefined;
+                        room.memberIds[i].__v = undefined;
+                        room.memberIds[i].address = undefined;
                     }
                     res.json({
                         "success": true,
