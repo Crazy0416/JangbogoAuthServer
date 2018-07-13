@@ -5,6 +5,7 @@ const roomSchema = new mongoClient.Schema({
         type: String,
         required: true
     },
+    description: String,
     memberIds: [{
         type: mongoClient.Schema.ObjectId,
         ref: 'member'
@@ -16,15 +17,16 @@ const roomSchema = new mongoClient.Schema({
     shoppingType: [{
         type: String
     }],
-    address: {
-        type: mongoClient.Schema.ObjectId,
-        ref: 'address'
-    },
+    address: String,
     isDisable: {
         type: Boolean,
         required: true
     },
     createOn: Date
+});
+
+roomSchema.path('title').validate(function(value) {
+   return true;
 });
 
 module.exports = mongoClient.model('room', roomSchema);
