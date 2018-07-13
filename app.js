@@ -46,7 +46,7 @@ app.use(passport.session());
 
 // Router Setting
 app.use('/auth', authRouter);
-app.use('/room', roomRouter);
+app.use('/:uid/room', roomRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
