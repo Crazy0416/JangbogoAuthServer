@@ -145,6 +145,7 @@ function join(req, res, next) {
         password: cryptoPassword,
         nickname: nickname,
         gender: gender,
+        roomIds: [],
         age: age,
         address: address,
         shoppingType: shoppingType,
@@ -199,7 +200,7 @@ function updateOrCreateAddressByUid(address, memberObj, cb) {
             if(addressObj) {   // 주소 존재 => update
                 let addressUpdatePromise = addressSchema.updateOne(
                     {address:address},
-                    {$push: {members: memberObj._id}});
+                    {$push: {memberIds: memberObj._id}});
 
                 addressUpdatePromise.exec()
                     .then(function(updateAddressObj) {
@@ -216,7 +217,7 @@ function updateOrCreateAddressByUid(address, memberObj, cb) {
             } else {        // 주소 없음 => create
                 addressSchema.create({
                     address: address,
-                    members: [memberObj._id]
+                    memberIds: [memberObj._id]
                 })
                 .then(function(createAddressObj) {
                     if(process.env.NODE_ENV == "production")

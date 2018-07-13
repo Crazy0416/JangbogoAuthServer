@@ -31,6 +31,10 @@ const memberSchema = new mongoClient.Schema({
        type: [String]       // TODO: tag 타입을 만들 것인가??
     },
     admin: Boolean,
+    roomIds: {
+        type: [mongoClient.Schema.ObjectId],
+        ref: "room"
+    },
     salt: {
         type: String,
         required: true
