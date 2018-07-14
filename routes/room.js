@@ -4,6 +4,7 @@ const myEnv = require("../config/environment");
 
 const express = require('express');
 const router = express.Router();
+const checkToken = require('../middlewares/checkToken');
 
 // models
 const memberSchema  = require("../models/member");
@@ -12,13 +13,15 @@ const roomSchema = require("../models/room");
 
 // router
 /* POST 유저가 방을 생성*/
-router.post('/', createRoom);
+router.post('/', checkToken, createRoom);
 
 /* GET 유저가 속한 방 목록 요청*/
-router.get('/', getUserRoomInfo);
+router.get('/', checkToken, getUserRoomInfo);
 
 /* GET 유저가 속한 특정 방 요청*/
-router.get('/:room_id', getRoomInfo);
+router.get('/:room_id', checkToken, getRoomInfo);
+
+router.delete('/:room_id', checkToken, deleteRoom);
 
 
 
@@ -228,6 +231,37 @@ function getRoomInfo(req, res, next) {
                 }
             }
         })
+}
+
+function deleteRoom(req, res, next) {
+    let time = Date.now();
+    let roomId = req.params.room_id;
+
+    roomSchema.findByIdAndDelete(roomId, function(err, room) {
+        if(err) {
+            console.log(time + " DELETE /:uid/room/:room_id ERROR: Room Delete ERR => " + err);
+            res.status(500).json({
+                "success": false,
+                "msg": "Room Delete ERR",
+                "time": time
+            })
+        } else {
+            if(room == null) {
+                console.log(time + " DELETE /:uid/room/:room_id ERROR: Room doesn't exist");
+                res.status(400).json({
+                    "success": false,
+                    "msg": "Room doesn't exist",
+                    "time": time
+                })
+            } else {
+                res.json({
+                    "success": true,
+                    "msg": "Room delete success",
+                    "time": time
+                })
+            }
+        }
+    })
 }
 
 module.exports = router;
