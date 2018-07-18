@@ -62,7 +62,9 @@ function createRoom(req, res, next) {
                         shoppingType: shoppingType,
                         description: description,
                         address: addressName,
-                        isDisable: isDisable})
+                        isDisable: isDisable,
+                        createOn: new Date()
+                    })
                         .then(function(room) {
                             memberSchema.findByIdAndUpdate(memberObj._id, {$push: {roomIds: room._id}}).exec()
                                 .then(function (UpdatememberObj) {
@@ -82,6 +84,7 @@ function createRoom(req, res, next) {
                                                 "chatLogIds": room.chatLogIds,
                                                 "shoppingType": room.shoppingType,
                                                 "memberIds": [{
+                                                    _id: memberObj._id,
                                                     uid: memberObj.uid,
                                                     nickname: memberObj.nickname,
                                                     gender: memberObj.gender,
