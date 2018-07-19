@@ -112,6 +112,7 @@ function localLogin(req, res, next) {
                 "time": Date.now()
             });
         }else {
+            req.session._id = user._id;
             req.session.uid = user.uid;
             req.session.nickname = user.nickname;
 
@@ -163,6 +164,7 @@ function join(req, res, next) {
         } else {
             console.log(registerTime + " POST /auth/join Create: member " + member);
 
+            req.session._id = member._id;
             req.session.uid = member.uid;
             req.session.nickname = member.nickname;
 
