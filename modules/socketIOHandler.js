@@ -64,21 +64,31 @@ exports = module.exports = function(io) {
         socket.on("exitRoom", function() {
             roomSchema.update({roomId: socket.roomId},
                 {$pull: {memberIds: {_id: socket.memberId}}},
-                (err, raw) => {
+                {new: true},
+                (err, room) => {
                     if(err) {
                         console.log(time + " exitRoom Error: ", socket.memberId,
                             ", room", socket.roomId, " Error: ", err);
                     } else {
-                        if(process.env.NODE_ENV == "dev") {
-                            console.log(time, socket.memberId, " exitRoom : ",
-                                ", room: ", socket.roomId);
+                        if(room == null) {
+                            console.log(time + "exitRoom SOCKETIO: room doesn't exist");
+                            res.status(400).json({
+                                "success": false,
+                                "msg": "Room doesn't exist",
+                                "time": time
+                            })
+                        } else {
+                            if(process.env.NODE_ENV == "dev") {
+                                console.log(time, socket.memberId, " exitRoom : ",
+                                    ", room: ", socket.roomId);
+                            }
+                            io.sockets.in(socket.roomId).emit('broadcast', {
+                                msgType: 2,
+                                chat: socket.nickname + "님이 방을 나가셨습니다.",
+                                senderNickname: "시스템",
+                                time: new Date()
+                            });
                         }
-                        io.sockets.in(socket.roomId).emit('broadcast', {
-                            msgType: 2,
-                            chat: socket.nickname + "님이 방을 나가셨습니다.",
-                            senderNickname: "시스템",
-                            time: new Date()
-                        });
                     }
                 })
         });

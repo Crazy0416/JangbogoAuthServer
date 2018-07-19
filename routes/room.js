@@ -21,6 +21,7 @@ router.get('/', checkToken, getUserRoomInfo);
 /* GET 유저가 속한 특정 방 요청*/
 router.get('/:room_id', checkToken, getRoomInfo);
 
+/* DELETE 유저가 자신이 속한 특정 방을 나감 */
 router.delete('/:room_id', checkToken, deleteRoom);
 
 
@@ -240,7 +241,8 @@ function deleteRoom(req, res, next) {
     let time = Date.now();
     let roomId = req.params.room_id;
 
-    roomSchema.findByIdAndDelete(roomId, function(err, room) {
+    roomSchema.findByIdAndUpdate(roomId,
+        {$pull: {memberIds: req.session._id}}, {new: true}, function(err, room) {
         if(err) {
             console.log(time + " DELETE /:uid/room/:room_id ERROR: Room Delete ERR => " + err);
             res.status(500).json({
@@ -257,9 +259,14 @@ function deleteRoom(req, res, next) {
                     "time": time
                 })
             } else {
+                console.log(time + " DELETE /:uid/room/:room_id User exit room.: User: ", req.session.uid);
+                if(room.memberIds.length === 0) {   // room에 아무도 존재하지 않는다면 room remove
+                    room.remove();
+                    console.log(time + " DELETE /:uid/room/:room_id Room Deleted");
+                }
                 res.json({
                     "success": true,
-                    "msg": "Room delete success",
+                    "msg": "User Exit Room success",
                     "time": time
                 })
             }
