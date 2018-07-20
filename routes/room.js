@@ -287,7 +287,6 @@ function joinRoom(req, res, next) {
                             "time": time
                         })
                     } else {
-                        // TODO: 멤버 자신의 roomIds도 업데이트
                         memberSchema.findByIdAndUpdate(memberId,
                             {$push: {roomIds: roomId}}, {new: true}).exec()
                             .then((updateMember) => {
@@ -365,7 +364,6 @@ function exitRoom(req, res, next) {
                     "time": time
                 })
             } else {
-                // TODO: 멤버 자신의 roomIds도 삭제
                 memberSchema.findByIdAndUpdate(req.session._id,
                     {$pull: {roomIds: roomId}},{new:true}).exec()
                     .then((UpdateMember) => {
