@@ -21,8 +21,11 @@ router.get('/', checkToken, getUserRoomInfo);
 /* GET 유저가 속한 특정 방 요청*/
 router.get('/:room_id', checkToken, getRoomInfo);
 
+/* GET 유저가 특정 방에 join 하기를 요청 */
+router.put('/join/:room_id', checkToken, joinRoom);
+
 /* DELETE 유저가 자신이 속한 특정 방을 나감 */
-router.delete('/:room_id', checkToken, deleteRoom);
+router.put('/exit/:room_id', checkToken, exitRoom);
 
 
 
@@ -237,7 +240,110 @@ function getRoomInfo(req, res, next) {
         })
 }
 
-function deleteRoom(req, res, next) {
+function joinRoom(req, res, next) {
+    let roomId = req.params.room_id;
+    let memberId = req.session._id;
+    let time = new Date();
+
+    roomSchema.findById(roomId, function(err, roomObj) {
+            if(err) {
+                console.log(time + "-- PUT /:uid/room/join/:room_id ERROR: Room Find ERR => " + err);
+                res.status(500).json({
+                    "success": false,
+                    "msg": "Room find ERR",
+                    "time": time
+                })
+            } else {
+                if(roomObj == null) {
+                    console.log(time + "-- PUT /:uid/room/join/:room_id ERROR: Room doesn't exist.");
+                    res.status(400).json({
+                        "success": false,
+                        "msg": "Room doesn't Exist",
+                        "time": time
+                    })
+                } else {
+                    console.log(roomObj.memberIds);
+                    console.log(memberId);
+                    console.log(roomObj.memberIds.indexOf(memberId) !== -1);
+                    if(roomObj.memberIds.length === myEnv.ROOM_MAX) {
+                        console.log(time + "-- PUT /:uid/room/join/:room_id ERROR: Room already full");
+                        res.status(400).json({
+                            "success": false,
+                            "msg": "Room already full",
+                            "time": time
+                        })
+                    } else if(roomObj.memberIds.indexOf(memberId) !== -1) {
+                        console.log(time + "-- PUT /:uid/room/join/:room_id ERROR: Room already joined");
+                        res.status(400).json({
+                            "success": false,
+                            "msg": "Room already joined",
+                            "time": time
+                        })
+                    } else if(roomObj.isDisable === true) {
+                        console.log(time + "-- PUT /:uid/room/join/:room_id ERROR: Room are disable");
+                        res.status(400).json({
+                            "success": false,
+                            "msg": "Room are disable",
+                            "time": time
+                        })
+                    } else {
+                        // TODO: 멤버 자신의 roomIds도 업데이트
+                        memberSchema.findByIdAndUpdate(memberId,
+                            {$push: {roomIds: roomId}}, {new: true}).exec()
+                            .then((updateMember) => {
+                                roomObj.memberIds.push(memberId);
+                                roomObj.save(function(errS, updatedRoom) {
+                                    if(errS) {
+                                        console.log(time + "-- PUT /:uid/room/join/:room_id ERROR: Room save ERR => " + errS);
+                                        res.status(500).json({
+                                            "success": false,
+                                            "msg": "Room Update ERR",
+                                            "time": time
+                                        })
+                                    } else {
+                                        updatedRoom.populate({
+                                            path: 'memberIds',
+                                            model: 'member'
+                                        }, function(err, popRoom) {
+                                            let roomInfo = popRoom.toObject();
+                                            for(let i = 0; i < roomInfo.memberIds.length; i++) {
+                                                roomInfo.memberIds[i].shoppingType = undefined;
+                                                roomInfo.memberIds[i].roomIds = undefined;
+                                                roomInfo.memberIds[i].password = undefined;
+                                                roomInfo.memberIds[i].salt = undefined;
+                                                roomInfo.memberIds[i].admin = undefined;
+                                                roomInfo.memberIds[i].createOn = undefined;
+                                                roomInfo.memberIds[i]._id = undefined;
+                                                roomInfo.memberIds[i].gender = undefined;
+                                                roomInfo.memberIds[i].age = undefined;
+                                                roomInfo.memberIds[i].__v = undefined;
+                                                roomInfo.memberIds[i].address = undefined;
+                                            }
+                                            res.json({
+                                                "success": true,
+                                                "msg": "Room joined!!",
+                                                "time": time,
+                                                "data": roomInfo
+                                            })
+                                        });
+                                    }
+                                })
+                            })
+                            .catch((errU) => {
+                                console.log(time + " -- PUT /:uid/room/join/:room_id User Update ERR=> ", errU);
+                                res.status(500).json({
+                                    "success": true,
+                                    "msg": "User Update Error",
+                                    "time": time
+                                })
+                            });
+                    }
+                }
+            }
+        })
+}
+
+function exitRoom(req, res, next) {
     let time = Date.now();
     let roomId = req.params.room_id;
 
@@ -259,16 +365,29 @@ function deleteRoom(req, res, next) {
                     "time": time
                 })
             } else {
-                console.log(time + " DELETE /:uid/room/:room_id User exit room.: User: ", req.session.uid);
-                if(room.memberIds.length === 0) {   // room에 아무도 존재하지 않는다면 room remove
-                    room.remove();
-                    console.log(time + " DELETE /:uid/room/:room_id Room Deleted");
-                }
-                res.json({
-                    "success": true,
-                    "msg": "User Exit Room success",
-                    "time": time
-                })
+                // TODO: 멤버 자신의 roomIds도 삭제
+                memberSchema.findByIdAndUpdate(req.session._id,
+                    {$pull: {roomIds: roomId}},{new:true}).exec()
+                    .then((UpdateMember) => {
+                        console.log(time + " DELETE /:uid/room/:room_id User exit room.: User: ", req.session.uid);
+                        if(room.memberIds.length === 0) {   // room에 아무도 존재하지 않는다면 room remove
+                            room.remove();
+                            console.log(time + " DELETE /:uid/room/:room_id Room Deleted");
+                        }
+                        res.json({
+                            "success": true,
+                            "msg": "User Exit Room success",
+                            "time": time
+                        })
+                    })
+                    .catch((errU) =>{
+                        console.log(time + " DELETE /:uid/room/:room_id User Update ERR=>", errU);
+                        res.status(500).json({
+                            "success": true,
+                            "msg": "User Update Error",
+                            "time": time
+                        })
+                    });
             }
         }
     })
