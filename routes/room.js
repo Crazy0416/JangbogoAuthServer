@@ -37,7 +37,7 @@ function createRoom(req, res, next) {
     let address = req.body.address;
     let shoppingType = req.body.shoppingType;
     let isDisable = req.body.isDisable;
-    let time = Date.now();
+    let time = new Date();
 
     memberSchema.findOne({uid: uid}, (errM, memberObj) => {
         if(errM) {
@@ -128,7 +128,7 @@ function createRoom(req, res, next) {
 }
 
 function getUserRoomInfo(req, res, next) {
-    let time = Date.now();
+    let time = new Date();
 
     // TODO: 채팅이 제일 최근에 온 것으로 sorting
 
@@ -191,7 +191,7 @@ function getUserRoomInfo(req, res, next) {
 }
 
 function getRoomInfo(req, res, next) {
-    let time = Date.now();
+    let time = new Date();
 
     roomSchema.findById(req.params.room_id)
         .populate({
@@ -343,7 +343,7 @@ function joinRoom(req, res, next) {
 }
 
 function exitRoom(req, res, next) {
-    let time = Date.now();
+    let time = new Date();
     let roomId = req.params.room_id;
 
     roomSchema.findByIdAndUpdate(roomId,

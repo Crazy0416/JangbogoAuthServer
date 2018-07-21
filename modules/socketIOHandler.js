@@ -13,7 +13,7 @@ exports = module.exports = function(io) {
                 socket.nickname = info.nickname;
                 socket.roomId = info.roomId;
                 if(process.env.NODE_ENV == "dev"){
-                    console.log(Date.now(), " SOCKETIO setUserInfo on: ", "set user info to socket");
+                    console.log(new Date(), " SOCKETIO setUserInfo on: ", "set user info to socket");
                 }
 
                 socket.join(info.roomId);
@@ -29,7 +29,7 @@ exports = module.exports = function(io) {
         // 클라이언트가 채팅을 쳤을 때
         socket.on('sendChat', function(chatData) {
             let chatStr = chatData.chat;
-            let time = Date.now();
+            let time = new Date();
 
             chatLogSchema.create({
               chat: chatStr,
@@ -63,7 +63,7 @@ exports = module.exports = function(io) {
 
         // 클라이언트가 방을 나가겠다는 의미
         socket.on("exitRoom", function() {
-            let time = Date.now();
+            let time = new Date();
 
             roomSchema.update({roomId: socket.roomId},
                 {$pull: {memberIds: {_id: socket.memberId}}},
@@ -99,7 +99,7 @@ exports = module.exports = function(io) {
         // 클라이언트와의 연결 종료
         socket.on('disconnect', function() {
             if(process.env.NODE_ENV == "dev") {
-                console.log(Date.now() + " user disconnect : ", socket.memberId, ", room: ", socket.roomId);
+                console.log(new Date() + " user disconnect : ", socket.memberId, ", room: ", socket.roomId);
             }
         })
 

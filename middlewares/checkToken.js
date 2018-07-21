@@ -5,7 +5,7 @@ module.exports = function(req, res, next) {
         req.status(403).json({
             success: false,
             msg: "token not exist",
-            time: Date.now()
+            time: new Date()
         })
     }
 };

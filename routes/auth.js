@@ -102,14 +102,14 @@ function localLogin(req, res, next) {
             return res.json({
                 "success": false,
                 "msg": err,
-                "time": Date.now()
+                "time": new Date()
             });
         }
         if(!user) {
             return res.json({
                 "success": false,
                 "msg": info.message,
-                "time": Date.now()
+                "time": new Date()
             });
         }else {
             req.session._id = user._id;
@@ -120,7 +120,7 @@ function localLogin(req, res, next) {
                 "success": true,
                 "msg": "login success",
                 "token": "sess:" + req.session.id,
-                "time": Date.now()
+                "time": new Date()
             });
         }
     })(req, res, next);
@@ -207,13 +207,13 @@ function updateOrCreateAddressByUid(address, memberObj, cb) {
                 addressUpdatePromise.exec()
                     .then(function(updateAddressObj) {
                         if(process.env.NODE_ENV == "production")
-                            console.log(Date.now(), " Mongoose: address updateOne ", address);
+                            console.log(new Date(), " Mongoose: address updateOne ", address);
                         else if(process.env.NODE_ENV == "dev")
-                            console.log(Date.now(), " Mongoose: address updateOne ", address, " ", updateAddressObj);
+                            console.log(new Date(), " Mongoose: address updateOne ", address, " ", updateAddressObj);
                         cb(null, "Address update: " + address);
                     })
                     .catch(function(errAU) {
-                        console.log(Date.now(), " Mongoose: address updateOne Error: ", errAU);
+                        console.log(new Date(), " Mongoose: address updateOne Error: ", errAU);
                         cb(errAU);
                     })
             } else {        // 주소 없음 => create
@@ -223,19 +223,19 @@ function updateOrCreateAddressByUid(address, memberObj, cb) {
                 })
                 .then(function(createAddressObj) {
                     if(process.env.NODE_ENV == "production")
-                        console.log(Date.now(), " Mongoose: address create ", address);
+                        console.log(new Date(), " Mongoose: address create ", address);
                     else if(process.env.NODE_ENV == "dev")
-                        console.log(Date.now(), " Mongoose: address create ", address, " ", createAddressObj);
+                        console.log(new Date(), " Mongoose: address create ", address, " ", createAddressObj);
                     cb(null, "Address create: " + address);
                 })
                 .catch(function(errAC) {
-                    console.log(Date.now(), " Mongoose: address create Error: ", errAC);
+                    console.log(new Date(), " Mongoose: address create Error: ", errAC);
                     cb(errAC);
                 })
             }
         })
         .catch(function(errAF) {
-            console.log(Date.now(), " Mongoose: address findOne Error: ", errAF);
+            console.log(new Date(), " Mongoose: address findOne Error: ", errAF);
             cb(errAF);
         })
 }
@@ -353,7 +353,7 @@ function checkIdinDB(req, res, next) {
 function isNoId(uid) {
 
     return new Promise(function(resolve, reject) {
-        let registerTime = Date.now();
+        let registerTime = new Date();
 
         memberSchema.findOne({uid: uid}, (err, user) => {
             if(err) {

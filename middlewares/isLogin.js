@@ -3,7 +3,7 @@ module.exports = function isLogin(req, res, next) {
         res.json({
             "success" : false,
             "msg": "이미 로그인되어있습니다.",
-            "time": Date.now()
+            "time": new Date()
         })
     } else {
         next();
