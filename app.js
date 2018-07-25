@@ -15,6 +15,7 @@ const tokenHeaderToCookie = require("./middlewares/tokenHeaderToCookie");
 // Router setting
 const authRouter = require('./routes/auth');
 const roomRouter = require('./routes/room');
+const searchRouter = require('./routes/search');
 
 // mongoDB setup
 const mongoHandler = require('./modules/mongooseHandler');
@@ -47,6 +48,7 @@ app.use(passport.session());
 // Router Setting
 app.use('/auth', authRouter);
 app.use('/:uid/room', roomRouter);
+app.use('/:uid/search', searchRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
