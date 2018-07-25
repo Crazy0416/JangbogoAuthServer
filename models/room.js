@@ -22,6 +22,10 @@ const roomSchema = new mongoClient.Schema({
         type: Boolean,
         required: true
     },
+    masterMember: {
+        type: mongoClient.Schema.ObjectId,
+        ref: 'member'
+    },
     createOn: Date
 });
 

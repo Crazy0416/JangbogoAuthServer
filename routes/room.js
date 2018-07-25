@@ -67,6 +67,7 @@ function createRoom(req, res, next) {
                         description: description,
                         address: addressName,
                         isDisable: isDisable,
+                        masterMember: memberId,
                         createOn: new Date()
                     })
                         .then(function(room) {
@@ -90,10 +91,13 @@ function createRoom(req, res, next) {
                                                 "memberIds": [{
                                                     _id: memberObj._id,
                                                     uid: memberObj.uid,
-                                                    nickname: memberObj.nickname,
-                                                    gender: memberObj.gender,
-                                                    age: memberObj.age
+                                                    nickname: memberObj.nickname
                                                 }],
+                                                masterMember: {
+                                                    _id: memberObj._id,
+                                                    uid: memberObj.uid,
+                                                    nickname: memberObj.nickname,
+                                                },
                                                 "address" : addressObj.address,
                                                 "_id": room._id,
                                                 "title": room.title,
@@ -198,6 +202,10 @@ function getRoomInfo(req, res, next) {
             path: 'memberIds',
             model: 'member'
         })
+        .populate({
+            path: 'masterMember',
+            model: 'member'
+        })
         .lean()
         .exec((err, room) => {
             if(err) {
@@ -228,6 +236,17 @@ function getRoomInfo(req, res, next) {
                         room.memberIds[i].age = undefined;
                         room.memberIds[i].__v = undefined;
                         room.memberIds[i].address = undefined;
+                        room.masterMember.shoppingType = undefined;
+                        room.masterMember.roomIds = undefined;
+                        room.masterMember.password = undefined;
+                        room.masterMember.salt = undefined;
+                        room.masterMember.admin = undefined;
+                        room.masterMember.createOn = undefined;
+                        room.masterMember._id = undefined;
+                        room.masterMember.gender = undefined;
+                        room.masterMember.age = undefined;
+                        room.masterMember.__v = undefined;
+                        room.masterMember.address = undefined;
                     }
                     res.json({
                         "success": true,
@@ -301,6 +320,9 @@ function joinRoom(req, res, next) {
                                         })
                                     } else {
                                         updatedRoom.populate({
+                                            path: 'masterMember',
+                                            model: 'member'
+                                        }).populate({
                                             path: 'memberIds',
                                             model: 'member'
                                         }, function(err, popRoom) {
@@ -317,6 +339,17 @@ function joinRoom(req, res, next) {
                                                 roomInfo.memberIds[i].age = undefined;
                                                 roomInfo.memberIds[i].__v = undefined;
                                                 roomInfo.memberIds[i].address = undefined;
+                                                roomInfo.masterMember.shoppingType = undefined;
+                                                roomInfo.masterMember.roomIds = undefined;
+                                                roomInfo.masterMember.password = undefined;
+                                                roomInfo.masterMember.salt = undefined;
+                                                roomInfo.masterMember.admin = undefined;
+                                                roomInfo.masterMember.createOn = undefined;
+                                                roomInfo.masterMember._id = undefined;
+                                                roomInfo.masterMember.gender = undefined;
+                                                roomInfo.masterMember.age = undefined;
+                                                roomInfo.masterMember.__v = undefined;
+                                                roomInfo.masterMember.address = undefined;
                                             }
                                             res.json({
                                                 "success": true,
