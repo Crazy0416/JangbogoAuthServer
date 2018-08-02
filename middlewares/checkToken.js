@@ -1,4 +1,5 @@
 module.exports = function(req, res, next) {
+    console.log("req.session: ", req.session);
     if(req.session.uid) {
         next()
     } else {
