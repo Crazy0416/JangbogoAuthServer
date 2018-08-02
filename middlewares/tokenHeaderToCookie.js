@@ -4,6 +4,7 @@ module.exports = function (req, res, next) {
            req.cookies = {};
         }
         req.cookies.token = req.header("token");
+        console.log("cookies: ", req.cookies);
 
         next();
     } else {
