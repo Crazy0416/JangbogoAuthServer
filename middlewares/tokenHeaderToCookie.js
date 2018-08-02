@@ -3,7 +3,7 @@ module.exports = function (req, res, next) {
         if(!req.cookies) {
             req.cookies = {};
         }
-        req.cookies.token = req.headers["jangtoken"];
+        req.cookies.jangtoken = req.headers["jangtoken"];
         console.log("cookies: ", req.cookies);
 
         next();
