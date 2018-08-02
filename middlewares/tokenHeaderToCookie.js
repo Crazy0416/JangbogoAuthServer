@@ -1,14 +1,14 @@
 module.exports = function (req, res, next) {
-    if(req.header("token")) {
+    if(req.headers["jangtoken"]) {
         if(!req.cookies) {
             req.cookies = {};
         }
-        req.cookies.token = req.header("token");
+        req.cookies.token = req.headers["jangtoken"];
         console.log("cookies: ", req.cookies);
 
         next();
     } else {
-        console.log("header token: ", req.header("token"));
+        console.log("headers token: ", req.headers);
         next();
     }
 };
