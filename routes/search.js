@@ -24,7 +24,7 @@ function roomSearch(req, res, next) {
     memberSchema.findById(req.session._id).exec()
         .then((memberObj) => {
             if(memberObj == null) {
-                let userAddress = req.body.address.split(' ', 2).join(' ');
+                let userAddress = req.query.address.split(' ', 2).join(' ');
                 console.log('find address: ', userAddress);
             } else {
                 let userAddress = memberObj.address.split(' ', 2).join(' ');
