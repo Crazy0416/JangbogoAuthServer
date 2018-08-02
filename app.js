@@ -13,6 +13,7 @@ const tokenHeaderToCookie = require("./middlewares/tokenHeaderToCookie");
 const authRouter = require('./routes/auth');
 const roomRouter = require('./routes/room');
 const searchRouter = require('./routes/search');
+const indexRouter = require('./routes/index');
 
 // mongoDB setup
 const mongoHandler = require('./modules/mongooseHandler');
@@ -49,6 +50,7 @@ app.use(passport.session());
 app.use('/auth', authRouter);
 app.use('/:uid/room', roomRouter);
 app.use('/:uid/search', searchRouter);
+app.use('/', indexRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
