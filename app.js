@@ -6,9 +6,6 @@ const logger = require('morgan');
 const passport = require('passport');
 const cors = require('cors');
 
-// sesssion
-const session = require('./modules/sessionConfig');
-
 // middleware
 const tokenHeaderToCookie = require("./middlewares/tokenHeaderToCookie");
 
@@ -29,6 +26,9 @@ app.set('view engine', 'ejs');
 
 // header "token" to cookie
 app.use(tokenHeaderToCookie);
+
+// sesssion
+const session = require('./modules/sessionConfig');
 
 // session config
 app.use(session);
